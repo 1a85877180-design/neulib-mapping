@@ -2,45 +2,119 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Bản đồ thư viện demo</title>
+  <title>Bản đồ thư viện nhiều tầng (1 bản đồ)</title>
   <!-- Gọi Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
+    body { font-family: Arial, sans-serif; }
+    .tabs {
+      margin-bottom: 10px;
+    }
+    .tabs button {
+      padding: 10px 20px;
+      margin-right: 5px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    .tabs button.active {
+      background-color: #0078d7;
+      color: white;
+    }
     #map {
-      height: 500px;
+      height: 700px;
       width: 100%;
     }
   </style>
 </head>
 <body>
-  <h2>Bản đồ thư viện (demo)</h2>
+  <h2>Bản đồ thư viện (demo nhiều tầng)</h2>
+
+  <!-- Các nút tab -->
+  <div class="tabs">
+    <button class="tab-btn active" data-floor="1">Tầng 1</button>
+    <button class="tab-btn" data-floor="2">Tầng 2</button>
+    <button class="tab-btn" data-floor="3">Tầng 3</button>
+  </div>
+
+  <!-- Map -->
   <div id="map"></div>
 
   <!-- Gọi Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Tạo bản đồ (tọa độ giả định)
+    // Tạo map
     var map = L.map('map', {
-      crs: L.CRS.Simple, // dùng hệ toạ độ đơn giản
+      crs: L.CRS.Simple,
       minZoom: -1
     });
 
-    // Kích thước ảnh sơ đồ thư viện (giả sử 1000x600 px)
     var bounds = [[0,0], [600,1000]];
-    var image = L.imageOverlay('so_do_T1.jpg', bounds).addTo(map);
-    map.fitBounds(bounds);
+    var currentOverlay = null;
+    var currentMarkers = [];
 
-    // Thêm marker cho từng kệ sách
-    L.marker([500,200]).addTo(map)
-      .bindPopup("<b>Kệ A</b><br>Sách Kinh tế");
+    // Dữ liệu từng tầng
+    var floors = {
+      1: {
+        image: "so_do_T1.jpg",
+        markers: [
+          { coords: [500,200], text: "<b>Kệ A</b><br>Sách Kinh tế" },
+          { coords: [300,500], text: "<b>Kệ B</b><br>Sách CNTT" },
+          { coords: [100,800], text: "<b>Kệ C</b><br>Sách Văn học" }
+        ]
+      },
+      2: {
+        image: "so_do_T2.jpg",
+        markers: [
+          { coords: [400,400], text: "<b>Kệ D</b><br>Sách Lịch sử" },
+          { coords: [200,700], text: "<b>Kệ E</b><br>Sách Y học" }
+        ]
+      },
+      3: {
+        image: "so_do_T3.jpg",
+        markers: [
+          { coords: [350,600], text: "<b>Kệ F</b><br>Sách Ngoại ngữ" },
+          { coords: [150,300], text: "<b>Kệ G</b><br>Sách Chính trị" }
+        ]
+      }
+    };
 
-    L.marker([300,500]).addTo(map)
-      .bindPopup("<b>Kệ B</b><br>Sách CNTT");
+    // Hàm load tầng
+    function loadFloor(floor) {
+      // Xóa overlay cũ
+      if (currentOverlay) {
+        map.removeLayer(currentOverlay);
+      }
+      // Xóa marker cũ
+      currentMarkers.forEach(m => map.removeLayer(m));
+      currentMarkers = [];
 
-    L.marker([100,800]).addTo(map)
-      .bindPopup("<b>Kệ C</b><br>Sách Văn học");
+      // Thêm overlay mới
+      currentOverlay = L.imageOverlay(floors[floor].image, bounds).addTo(map);
+      map.fitBounds(bounds);
+
+      // Thêm markers
+      floors[floor].markers.forEach(m => {
+        var marker = L.marker(m.coords).addTo(map).bindPopup(m.text);
+        currentMarkers.push(marker);
+      });
+    }
+
+    // Load mặc định tầng 1
+    loadFloor(1);
+
+    // Xử lý click tab
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        // Bỏ active
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        // Load tầng
+        var floor = this.dataset.floor;
+        loadFloor(floor);
+      });
+    });
   </script>
 </body>
-
 </html>
-
