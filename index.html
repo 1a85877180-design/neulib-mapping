@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bản đồ thư viện demo</title>
+  <!-- Gọi Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h2>Bản đồ thư viện (demo)</h2>
+  <div id="map"></div>
+
+  <!-- Gọi Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Tạo bản đồ (tọa độ giả định)
+    var map = L.map('map', {
+      crs: L.CRS.Simple, // dùng hệ toạ độ đơn giản
+      minZoom: -1
+    });
+
+    // Kích thước ảnh sơ đồ thư viện (giả sử 1000x600 px)
+    var bounds = [[0,0], [600,1000]];
+    var image = L.imageOverlay('https://i.ibb.co/3vW8ycC/library-demo.png', bounds).addTo(map);
+    map.fitBounds(bounds);
+
+    // Thêm marker cho từng kệ sách
+    L.marker([500,200]).addTo(map)
+      .bindPopup("<b>Kệ A</b><br>Sách Kinh tế");
+
+    L.marker([300,500]).addTo(map)
+      .bindPopup("<b>Kệ B</b><br>Sách CNTT");
+
+    L.marker([100,800]).addTo(map)
+      .bindPopup("<b>Kệ C</b><br>Sách Văn học");
+  </script>
+</body>
+</html>
